@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 def setup_logger(name: str) -> logging.Logger:
-    # remove underscore from name
+    # format name
     name = name.replace('_', '')
 
     # create logger
@@ -34,7 +34,7 @@ def setup_logger(name: str) -> logging.Logger:
     ch.setFormatter(formatter)
 
     # file handler
-    log_file = os.path.join('logs', f"{name}.log")
+    log_file = os.path.join(os.getcwd(), 'logs', f"{name}.log")
     file_handler = RotatingFileHandler(
         filename=log_file,
         maxBytes=1024 * 1024,

@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS teams (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(55) NOT NULL,
+    code CHAR(3) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS countries (
+    id SERIAL PRIMARY KEY NOT NULL,
+);
+
+CREATE TABLE IF NOT EXISTS cities (
+    id SERIAL PRIMARY KEY NOT NULL,
+)
+
+CREATE TABLE IF NOT EXISTS venues (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(55),
+    city_id 
+    country_id
+);
+
+-- Add Match Data
