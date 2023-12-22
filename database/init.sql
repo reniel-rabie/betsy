@@ -1,41 +1,68 @@
 -- geographical data 
 
 CREATE TABLE IF NOT EXISTS countries (
-    id SERIAL PRIMARY KEY NOT NULL,
+    "code" CHAR(2) NOT NULL,
     name VARCHAR(55) NOT NULL,
-    code CHAR(2) NOT NULL,
+	PRIMARY KEY ("code")
 );
 
-CREATE TABLE IF NOT EXISTS cities (
-    id SERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR(55) NOT NULL,
-    country_id INT NOT NULL,
+CREATE TYPE sport_type AS ENUM (
+    'Football',
+    'Basketball',
+    'American Football',
+    'Baseball',
+    'Cricket',
+    'Rugby',
+    'Hockey',
+    'Volleyball',
+    'Handball',
+    'Softball'
+);
 
-    FOREIGN KEY (country_id) REFERENCES countries (id)
+CREATE TABLE IF NOT EXISTS venues (
+    id INT PRIMARY KEY NOT NULL,
+    name VARCHAR(55),
+    city_name VARCHAR(55)
 );
 
 CREATE TABLE IF NOT EXISTS teams (
-    id SERIAL PRIMARY KEY NOT NULL,
+    id INT PRIMARY KEY NOT NULL,
     name VARCHAR(55) NOT NULL,
     code CHAR(3) NOT NULL,
-    sport ENUM('football') NOT NULL,
+    sport sport_type NOT NULL,
     home_venue_id INT,
 
     FOREIGN KEY (home_venue_id) REFERENCES venues (id)
 );
 
+CREATE TYPE league_type AS ENUM (
+	'league',
+	'cup',
+	'super-cup'
+);
 
+CREATE TABLE IF NOT EXISTS leagues (
+    id INT PRIMARY KEY NOT NULL,
+    name VARCHAR(55) NOT NULL,
+    country_code CHAR(2) NOT NULL,
+    type league_type NOT NULL,
 
-CREATE TABLE IF NOT EXISTS venues (
-    id SERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR(55),
-    city_id INT NOT NULL,
+    FOREIGN KEY (country_code) REFERENCES countries (code)
+);
 
-    FOREIGN KEY (city_id) REFERENCES cities (id)
+CREATE TABLE IF NOT EXISTS seasons (
+    league_id INT NOT NULL,
+    year INT NOT NULL,
+    start DATE NOT NULL,
+    "end" DATE NOT NULL,
+
+    PRIMARY KEY (league_id, year),
+
+    FOREIGN KEY (league_id) REFERENCES leagues (id)
 );
 
 CREATE TABLE IF NOT EXISTS football_matches (
-    id SERIAL PRIMARY KEY NOT NULL,
+    id INT PRIMARY KEY NOT NULL,
     home_team_id INT NOT NULL,
     away_team_id INT NOT NULL,
     venue_id INT NOT NULL,
