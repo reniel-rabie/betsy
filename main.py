@@ -1,1 +1,3 @@
-import db
+from football_client import FootballClient
+
+fc = FootballClient()
