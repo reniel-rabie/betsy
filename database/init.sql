@@ -1,3 +1,30 @@
+-- custom enum types
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'my_enum') THEN
+        CREATE TYPE sport_type AS ENUM (
+        'Football',
+        'Basketball',
+        'American Football',
+        'Baseball',
+        'Cricket',
+        'Rugby',
+        'Hockey',
+        'Volleyball',
+        'Handball',
+        'Softball'
+    );  
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'league_type') THEN
+        CREATE TYPE league_type AS ENUM (
+            'league',
+            'cup',
+            'super-cup'
+        );
+    END IF;
+END$$;
 -- geographical data 
 
 CREATE TABLE IF NOT EXISTS countries (
@@ -6,18 +33,6 @@ CREATE TABLE IF NOT EXISTS countries (
 	PRIMARY KEY ("code")
 );
 
-CREATE TYPE sport_type AS ENUM (
-    'Football',
-    'Basketball',
-    'American Football',
-    'Baseball',
-    'Cricket',
-    'Rugby',
-    'Hockey',
-    'Volleyball',
-    'Handball',
-    'Softball'
-);
 
 CREATE TABLE IF NOT EXISTS venues (
     id INT PRIMARY KEY NOT NULL,
@@ -35,11 +50,6 @@ CREATE TABLE IF NOT EXISTS teams (
     FOREIGN KEY (home_venue_id) REFERENCES venues (id)
 );
 
-CREATE TYPE league_type AS ENUM (
-	'league',
-	'cup',
-	'super-cup'
-);
 
 CREATE TABLE IF NOT EXISTS leagues (
     id INT PRIMARY KEY NOT NULL,

@@ -22,10 +22,6 @@ class Database:
         """Connect to the PostgreSQL database server"""
         self.logger.info("Connecting to the PostgreSQL database...")
 
-        print(f"DB: {self.db_name}")
-        print(f"USER: {self.db_user}")
-        print(f"PASSWORD: {self.db_password}")
-
         conn = psycopg2.connect(
             database=self.db_name,
             user=self.db_user,
@@ -37,7 +33,23 @@ class Database:
         self.conn = conn
         self.cursor = conn.cursor()
 
+    def close(self):
+        """Close the connection to the PostgreSQL database server"""
+        self.conn.close()
+        self.logger.info("Database closed successfully")
+
+    def init_database(self):
+        """Initialixe the database from the init.sql file"""
+        init_file = "database/init.sql"
+        self.logger.info("Initializing the database...")
+        with open(init_file, "r") as f:
+            sql = f.read()
+            self.cursor.execute(sql)
+            self.conn.commit()
+        self.logger.info("Database initialized successfully")
+
 
 if __name__ == "__main__":
     db = Database()
     db.connect()
+    db.close()
