@@ -16,7 +16,7 @@ class LeagueType(Enum):
     PLAYOFF = "Playoff"
 
 
-class MatchStatus(Enum):
+class FixtureStatus(Enum):
     NOT_STARTED = "NS"
     IN_PLAY = "IN_PLAY"
     PAUSED = "PAUSED"
@@ -59,14 +59,28 @@ class Venue(TypedDict):
     city_name: str
 
 
-class Match(TypedDict):
+class Fixture(TypedDict):
     id: int
     home_team_id: int
     away_team_id: int
-    time: datetime
-    status: MatchStatus
+    timestamp: int
+    status: FixtureStatus
     venue_id: int
     home_team_score: int
     away_team_score: int
     home_team_half_score: int
     away_team_half_score: int
+
+
+class Bookmaker(TypedDict):
+    id: int
+    name: str
+
+
+class Odds(TypedDict):
+    fixture_id: int
+    sport: Sport
+    home_win: float
+    draw: float
+    away_win: float
+    bookmaker_id: int

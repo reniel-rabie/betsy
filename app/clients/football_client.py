@@ -91,32 +91,31 @@ class FootballClient:
 
         endpoint = f"/v3/fixtures?league={league_id}&season={season}"
         data = self.GET(endpoint)
-        fixtures = []
-        n = 0
-        for fixture in data:
-            n += 1
-            print(n)
-            fixtures.append(
-                Match(
-                    id=fixture["fixture"]["id"],
-                    home_team_id=fixture["teams"]["home"]["id"],
-                    away_team_id=fixture["teams"]["away"]["id"],
-                    time=datetime.strptime(
-                        fixture["fixture"]["date"], "%Y-%m-%dT%H:%M:%S%z"
-                    ),
-                    status=MatchStatus(fixture["fixture"]["status"]["short"]),
-                    venue_id=fixture["fixture"]["venue"]["id"],
-                    home_team_score=fixture["goals"]["home"],
-                    away_team_score=fixture["goals"]["away"],
-                )
+        fixtures: list[Fixture] = [
+            Fixture(
+                id=fixture["fixture"]["id"],
+                home_team_id=fixture["teams"]["home"]["id"],
+                away_team_id=fixture["teams"]["away"]["id"],
+                timestamp=fixture["fixture"]["timestamp"],
+                status=FixtureStatus(fixture["fixture"]["status"]["short"]),
+                venue_id=fixture["fixture"]["venue"]["id"],
+                home_team_score=fixture["goals"]["home"],
+                away_team_score=fixture["goals"]["away"],
+                home_team_half_score=fixture["score"]["halftime"]["home"],
+                away_team_half_score=fixture["score"]["halftime"]["away"],
             )
+            for fixture in data
+            if fixture["fixture"]["timestamp"]
+        ]
 
-        # self.logger.info(f"GET_fixtures returned {fixtures}")
-        # self.logger.info(f"GET_fixtures returned {len(fixtures)} fixtures")
+        self.logger.info(
+            f"GET_fixtures returned {fixtures} for league {league_id}, season {season}"
+        )
+        self.logger.info(f"GET_fixtures returned {len(fixtures)} fixtures")
 
         return fixtures
 
 
 if __name__ == "__main__":
     fc = FootballClient()
-    fc.GET_fixtures(39, 2021)
+    fc.GET_fixtures(39, 2020)
