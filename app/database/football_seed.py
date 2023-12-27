@@ -92,4 +92,5 @@ leagues = [
 
 # fc.GET_teams(39, 2021)
 
-fc.GET_fixtures(39, 2021)
+fix = fc.GET_fixtures(39, 2021)
+print(len(fix))

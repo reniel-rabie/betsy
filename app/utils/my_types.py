@@ -65,7 +65,7 @@ class Match(TypedDict):
     away_team_id: int
     time: datetime
     status: MatchStatus
-    venue: Venue
+    venue_id: int
     home_team_score: int
     away_team_score: int
     home_team_half_score: int

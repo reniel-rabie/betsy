@@ -41,3 +41,13 @@ def setup_logger(name: str) -> logging.Logger:
     logger.addHandler(file_handler)
 
     return logger
+
+
+if __name__ == "__main__":
+    logger = setup_logger("test")
+    print("log file path:", os.path.join(os.getcwd(), "logs", f"test.log"))
+    logger.info("test")
+    logger.debug("test")
+    logger.warning("test")
+    logger.error("test")
+    logger.critical("test")

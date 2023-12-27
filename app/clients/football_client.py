@@ -1,10 +1,17 @@
 import os
+import sys
 import http.client
 import json
-from config import setup_logger
 from dotenv import load_dotenv
 from datetime import datetime
-from my_types import *
+
+# Add parent directory to path for imports
+current_dir = os.path.dirname(os.path.realpath(__file__))
+app_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(app_dir)
+
+from config import setup_logger
+from utils.my_types import *
 
 load_dotenv()
 
@@ -84,24 +91,32 @@ class FootballClient:
 
         endpoint = f"/v3/fixtures?league={league_id}&season={season}"
         data = self.GET(endpoint)
-        fixtures = [
-            Match(
-                id=fixture["fixture"]["id"],
-                home_team_id=fixture["teams"]["home"]["id"],
-                away_team_id=fixture["teams"]["away"]["id"],
-                time=fixture["fixture"]["date"],
-                status=MatchStatus(fixture["fixture"]["status"]["short"]),
-                venue=Venue(
-                    id=fixture["fixture"]["venue"]["id"],
-                    name=fixture["fixture"]["venue"]["name"],
-                    city_name=fixture["fixture"]["venue"]["city"],
-                ),
-                home_team_score=fixture["goals"]["home"],
-                away_team_score=fixture["goals"]["away"],
+        fixtures = []
+        n = 0
+        for fixture in data:
+            n += 1
+            print(n)
+            fixtures.append(
+                Match(
+                    id=fixture["fixture"]["id"],
+                    home_team_id=fixture["teams"]["home"]["id"],
+                    away_team_id=fixture["teams"]["away"]["id"],
+                    time=datetime.strptime(
+                        fixture["fixture"]["date"], "%Y-%m-%dT%H:%M:%S%z"
+                    ),
+                    status=MatchStatus(fixture["fixture"]["status"]["short"]),
+                    venue_id=fixture["fixture"]["venue"]["id"],
+                    home_team_score=fixture["goals"]["home"],
+                    away_team_score=fixture["goals"]["away"],
+                )
             )
-            for fixture in data
-        ]
-        self.logger.info(f"GET_fixtures returned {fixtures}")
-        self.logger.info(f"GET_fixtures returned {len(fixtures)} fixtures")
+
+        # self.logger.info(f"GET_fixtures returned {fixtures}")
+        # self.logger.info(f"GET_fixtures returned {len(fixtures)} fixtures")
 
         return fixtures
+
+
+if __name__ == "__main__":
+    fc = FootballClient()
+    fc.GET_fixtures(39, 2021)
