@@ -41,6 +41,23 @@ class FootballClient:
             self.logger.info(f"GET {endpoint} returned {data['results']} results")
         return data["response"]
 
+    def GET_country(self, country_code: str):
+        """Get country by code"""
+        if len(country_code) != 2:
+            self.logger.error(f"Invalid country code: {country_code}")
+            return
+
+        endpoint = f"/v3/countries?code={country_code}"
+        country = self.GET(endpoint)[0]["country"]
+        country = Country(
+            id=country["id"],
+            name=country["name"],
+            code=country["code"],
+            flag=country["flag"],
+        )
+        self.logger.info(f"GET_country returned {country}")
+        return country
+
     def GET_league(self, league_name: str, country_code: str):
         """Get all leagues"""
         league_name = league_name.replace(" ", "%20")

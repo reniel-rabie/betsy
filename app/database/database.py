@@ -48,6 +48,20 @@ class Database:
             self.conn.commit()
         self.logger.info("Database initialized successfully")
 
+    def table_names(self):
+        """Get all table names"""
+        self.cursor.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+        )
+        return [table[0] for table in self.cursor.fetchall()]
+
+    def columns(self, table_name: str):
+        """Get all columns from a table"""
+        self.cursor.execute(
+            f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
+        )
+        return [column[0] for column in self.cursor.fetchall()]
+
 
 if __name__ == "__main__":
     db = Database()

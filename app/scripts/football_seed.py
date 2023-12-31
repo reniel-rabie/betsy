@@ -1,12 +1,23 @@
-from football_client import FootballClient
+import os
+import sys
+import pandas as pd
+import numpy as np
+
+# Add parent directory to path for imports
+current_dir = os.path.dirname(os.path.realpath(__file__))
+app_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(app_dir)
+
+from clients import FootballClient
+from database import Database
 
 # from database import Database
 
-# dbs = Database()
+db = Database()
 fc = FootballClient()
 
 # Countries to be seeded into the database
-countries = [
+countries_entries = [
     {
         "name": "England",
         "code": "GB",
@@ -50,7 +61,7 @@ countries = [
 ]
 
 # Leagues to be seeded into the database
-leagues = [
+leagues_entries = [
     {
         "name": "Premier League",
         "country_code": "GB",
@@ -85,12 +96,27 @@ leagues = [
     },
 ]
 
-# for league in leagues:
-#     fc.GET_league(league["name"], league["country_code"])
+# Dataframe columns
+# historical data
+tables = db.table_names()
+columns = {}
+for table in tables:
+    columns[table] = db.columns(table)
 
-# fc.GET_seasons(39)
+print(columns["countries"])
 
-# fc.GET_teams(39, 2021)
+countries = pd.DataFrame(columns=columns["countries"])
+venues = pd.DataFrame(columns=columns["venues"])
+leagues = pd.DataFrame(columns=columns["leagues"])
+seasons = pd.DataFrame(columns=columns["seasons"])
+teams = pd.DataFrame(columns=columns["teams"])
+football_fixtures = pd.DataFrame(columns=columns["football_fixtures"])
 
-fix = fc.GET_fixtures(39, 2021)
-print(len(fix))
+# get country data
+for country in countries_entries:
+    data = fc.GET_country(country["code"])
+    countries = countries.append(data, ignore_index=True)
+
+print("Countries:", countries.head(5))
+
+# Work football fixture data for training model

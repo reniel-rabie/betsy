@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS seasons (
     FOREIGN KEY (league_id) REFERENCES leagues (id)
 );
 
-CREATE TABLE IF NOT EXISTS football_matches (
+CREATE TABLE IF NOT EXISTS football_fixtures (
     id INT PRIMARY KEY NOT NULL,
     home_team_id INT NOT NULL,
     away_team_id INT NOT NULL,
