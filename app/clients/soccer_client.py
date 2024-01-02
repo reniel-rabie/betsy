@@ -52,10 +52,22 @@ class SoccerClient:
         country = Country(
             name=country["name"],
             code=country["code"],
-            flag=country["flag"],
         )
         self.logger.info(f"GET_country returned {country}")
         return country
+    
+    def GET_countries(self):
+        """Get all countries"""
+        endpoint = f"/v3/countries"
+        data = self.GET(endpoint)
+        countries = [
+            Country(
+                name=country["name"],
+                code=country["code"]
+            ) for country in data
+        ]
+        self.logger.info(f"GET_countries returned {len(countries)} results")
+        return countries
 
     def GET_league(self, league_name: str, country_code: str):
         """Get all leagues"""
@@ -69,6 +81,8 @@ class SoccerClient:
         )
         self.logger.info(f"GET_league returned {league}")
         return league
+            
+        # Get leagues function...
 
     def GET_seasons(self, league_id: int):
         """Get all seasons with statistical analysis for a league"""
