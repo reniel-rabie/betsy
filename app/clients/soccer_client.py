@@ -11,12 +11,12 @@ app_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(app_dir)
 
 from config import setup_logger
-from utils.my_types import *
+from app.utils.db_types import *
 
 load_dotenv()
 
 
-class FootballClient:
+class SoccerClient:
     def __init__(self) -> None:
         self.base_url = "api-football-v1.p.rapidapi.com"
         self.api_key = os.getenv("X-RapidAPI-Key")
@@ -50,7 +50,6 @@ class FootballClient:
         endpoint = f"/v3/countries?code={country_code}"
         country = self.GET(endpoint)[0]["country"]
         country = Country(
-            id=country["id"],
             name=country["name"],
             code=country["code"],
             flag=country["flag"],
@@ -114,7 +113,7 @@ class FootballClient:
                 home_team_id=fixture["teams"]["home"]["id"],
                 away_team_id=fixture["teams"]["away"]["id"],
                 timestamp=fixture["fixture"]["timestamp"],
-                status=FixtureStatus(fixture["fixture"]["status"]["short"]),
+                status=fixture["fixture"]["status"]["short"],
                 venue_id=fixture["fixture"]["venue"]["id"],
                 home_team_score=fixture["goals"]["home"],
                 away_team_score=fixture["goals"]["away"],
@@ -134,5 +133,5 @@ class FootballClient:
 
 
 if __name__ == "__main__":
-    fc = FootballClient()
-    fc.GET_fixtures(39, 2020)
+    client = SoccerClient()
+    client.GET_fixtures(39, 2020)

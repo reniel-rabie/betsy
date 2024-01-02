@@ -41,12 +41,14 @@ CREATE TABLE IF NOT EXISTS countries (
 
 CREATE TABLE IF NOT EXISTS venues (
     uuid UUID PRIMARY KEY NOT NULL DEFAULT generate_uuid_v4(),
+    id INT NOT NULL,
     name VARCHAR(55),
     city_name VARCHAR(55)
 );
 
 CREATE TABLE IF NOT EXISTS teams (
     uuid UUID PRIMARY KEY NOT NULL DEFAULT generate_uuid_v4(),
+    id INT NOT NULL,
     name VARCHAR(55) NOT NULL,
     code CHAR(3) NOT NULL,
     sport sport_type NOT NULL,
@@ -58,6 +60,7 @@ CREATE TABLE IF NOT EXISTS teams (
 
 CREATE TABLE IF NOT EXISTS leagues (
     uuid UUID PRIMARY KEY NOT NULL DEFAULT generate_uuid_v4(),
+    id INT NOT NULL,
     name VARCHAR(55) NOT NULL,
     sport sport_type NOT NULL,
     country_id CHAR(2) NOT NULL,
@@ -68,6 +71,7 @@ CREATE TABLE IF NOT EXISTS leagues (
 
 CREATE TABLE IF NOT EXISTS seasons (
     uuid UUID PRIMARY KEY NOT NULL DEFAULT generate_uuid_v4(),
+    id INT NOT NULL,
     league_id INT NOT NULL,
     sport sport_type NOT NULL,
     year INT NOT NULL,

@@ -1,1 +1,1 @@
-from .football_client import FootballClient
+from .soccer_client import SoccerClient

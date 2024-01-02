@@ -3,7 +3,7 @@ from enum import Enum
 from datetime import datetime
 
 
-class Sport(Enum):
+class SportType(Enum):
     FOOTBALL = "football"
     BASKETBALL = "basketball"
     BASEBALL = "baseball"
@@ -16,16 +16,6 @@ class LeagueType(Enum):
     PLAYOFF = "Playoff"
 
 
-class FixtureStatus(Enum):
-    NOT_STARTED = "NS"
-    IN_PLAY = "IN_PLAY"
-    PAUSED = "PAUSED"
-    FINISHED = "FT"
-    POSTPONED = "PST"
-    SUSPENDED = "SUSP"
-    CANCELED = "CANC"
-
-
 class Country(TypedDict):
     code: str
     name: str
@@ -35,7 +25,7 @@ class Team(TypedDict):
     id: int
     name: str
     code: str
-    sport: Sport
+    sport: SportType
     venue_id: int
 
 
@@ -61,10 +51,11 @@ class Venue(TypedDict):
 
 class Fixture(TypedDict):
     id: int
+    sport: SportType
     home_team_id: int
     away_team_id: int
     timestamp: int
-    status: FixtureStatus
+    status: str
     venue_id: int
     home_team_score: int
     away_team_score: int
@@ -79,7 +70,7 @@ class Bookmaker(TypedDict):
 
 class Odds(TypedDict):
     fixture_id: int
-    sport: Sport
+    sport: SportType
     home_win: float
     draw: float
     away_win: float
