@@ -2,7 +2,7 @@
 
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'my_enum') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sport_type') THEN
         CREATE TYPE sport_type AS ENUM (
         'Soccer',
         'Basketball',
@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS fixtures (
 
 CREATE TABLE IF NOT EXISTS soccer_fixtures (
 
+    -- connect fixtures and soccer_fixtures
     uuid UUID NOT NULL
     FOREIGN KEY (uuid) REFERENCES fixtures (uuid)
 

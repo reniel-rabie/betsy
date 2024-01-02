@@ -15,8 +15,7 @@ class Database:
         self.db_host = "127.0.0.1"
         self.db_port = "5432"
 
-        self.conn = None
-        self.cursor = None
+        self.connect()
 
     def connect(self):
         """Connect to the PostgreSQL database server"""
