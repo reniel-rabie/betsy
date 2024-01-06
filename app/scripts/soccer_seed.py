@@ -10,9 +10,6 @@ from database import Database
 from clients import SoccerClient
 from config import setup_logger
 
-# Seed countries
-
-
 if __name__ == "main":
     # Seed data into soccer databse
     logger = setup_logger(__file__.__name__)

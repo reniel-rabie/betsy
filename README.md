@@ -1,6 +1,10 @@
 # Betsy
 
-## _ML Driven Sports Betting_
+_ML Driven Sports Betting_
+
+## Betsy Development Workflow
+
+![Betsy Dev Work Flow](public/Betsy%20Dev%20Flow.png)
 
 ## Parameters
 
