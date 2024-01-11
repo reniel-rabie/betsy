@@ -1,5 +1,12 @@
-import psycopg2
+import sys
 import os
+
+# Add parent directory to path for imports
+current_dir = os.path.dirname(os.path.realpath(__file__))
+app_dir = os.path.abspath(os.path.join(current_dir, ".."))
+sys.path.append(app_dir)
+
+import psycopg2
 from config import setup_logger
 from dotenv import load_dotenv
 
@@ -17,7 +24,6 @@ class Database:
 
         self.conn = None
         self.cursor = None
-        self.connect()
 
     def connect(self):
         """Connect to the PostgreSQL database server"""
@@ -31,16 +37,14 @@ class Database:
                 host=self.db_host,
                 port=self.db_port,
             )
-        except ConnectionError as e:
-            self.logger.error(e)
+        except (Exception, psycopg2.DatabaseError) as error:
+            self.logger.error(error)
             return False
-        
+
         self.conn = conn
         self.cursor = conn.cursor()
         self.logger.info("Database connected succesfully")
         return True
-
-        
 
     def close(self):
         """Close the connection to the PostgreSQL database server"""
@@ -57,7 +61,7 @@ class Database:
             self.conn.commit()
         self.logger.info("Database initialized successfully")
 
-    def table_names(self):
+    def tabls(self):
         """Get all table names"""
         self.cursor.execute(
             "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
@@ -70,6 +74,9 @@ class Database:
             f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
         )
         return [column[0] for column in self.cursor.fetchall()]
+
+    def __str__(self) -> str:
+        return f"Database: {self.db_name} at {self.db_host}:{self.db_port}"
 
 
 if __name__ == "__main__":
