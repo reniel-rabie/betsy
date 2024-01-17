@@ -11,7 +11,7 @@ app_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(app_dir)
 
 from config import setup_logger
-from app.utils.db_types import *
+from utils.db_types import *
 
 load_dotenv()
 
@@ -27,7 +27,7 @@ class SoccerClient:
         self.conn = http.client.HTTPSConnection(self.base_url)
         self.logger = setup_logger(self.__class__.__name__)
 
-    def GET(self, endpoint):
+    def __GET(self, endpoint):
         """GET Requests to football API"""
         self.conn.request("GET", endpoint, headers=self.headers)
         # Convert resp to JSON
@@ -41,65 +41,79 @@ class SoccerClient:
             self.logger.info(f"GET {endpoint} returned {data['results']} results")
         return data["response"]
 
-    def GET_country(self, country_code: str):
+    def get_country(self, country_code: str):
         """Get country by code"""
         if len(country_code) != 2:
             self.logger.error(f"Invalid country code: {country_code}")
             return
 
         endpoint = f"/v3/countries?code={country_code}"
-        country = self.GET(endpoint)[0]["country"]
+        response = self.__GET(endpoint)
         country = Country(
-            name=country["name"],
-            code=country["code"],
+            name=response[0]["name"],
+            code=response[0]["code"],
         )
-        self.logger.info(f"GET_country returned {country}")
+        self.logger.info(f"get_country returned {country}")
         return country
-    
-    def GET_countries(self):
+
+    def get_countries(self):
         """Get all countries"""
         endpoint = f"/v3/countries"
-        data = self.GET(endpoint)
+        data = self.__GET(endpoint)
         countries = [
-            Country(
-                name=country["name"],
-                code=country["code"]
-            ) for country in data
+            Country(name=country["name"], code=country["code"]) for country in data
         ]
-        self.logger.info(f"GET_countries returned {len(countries)} results")
+        self.logger.info(f"get_countries returned {len(countries)} results")
         return countries
 
-    def GET_league(self, league_name: str, country_code: str):
-        """Get all leagues"""
-        league_name = league_name.replace(" ", "%20")
-        endpoint = f"/v3/leagues?name={league_name}&code={country_code}"
-        league = self.GET(endpoint)[0]["league"]
-        league = League(
-            id=league["id"],
-            name=league["name"],
-            type=LeagueType(league["type"]),
-        )
-        self.logger.info(f"GET_league returned {league}")
-        return league
-            
-        # Get leagues function...
+    def get_venues(self, country_name: str):
+        """Get venue by country name"""
+        endpoint = f"/v3/venues?country={country_name}"
+        response = self.__GET(endpoint)
+        venues = [
+            Venue(
+                id=venue["id"],
+                name=venue["name"],
+                city_name=venue["city"],
+            )
+            for venue in response
+        ]
+        return venues
 
-    def GET_seasons(self, league_id: int):
+    def get_league(self, country_code: str, amount: int = 1) -> list[League]:
+        """Get all leagues"""
+        endpoint = f"/v3/leagues?code={country_code}"
+        response = self.__GET(endpoint)
+        if amount > len(response):
+            amount = len(response)
+        leagues = [
+            League(
+                id=league["league"]["id"],
+                name=league["league"]["name"],
+                country_code=league["country"]["code"],
+                country_name=league["country"]["name"],
+            )
+            for league in response[:amount]
+        ]
+        self.logger.info(f"get_league returned {leagues}")
+        return leagues
+
+    def get_seasons(self, league_id: int):
         """Get all seasons with statistical analysis for a league"""
         endpoint = f"/v3/leagues?id={league_id}"
-        data = self.GET(endpoint)
+        data = self.__GET(endpoint)
         seasons = []
         for season in data[0]["seasons"]:
             if season["coverage"]["fixtures"]["statistics_fixtures"] == True:
                 seasons.append(season["year"])
 
-        self.logger.info(f"GET_seasons returned {seasons}")
+        self.logger.info(f"get_seasons returned {seasons}")
         return seasons
 
-    def GET_teams(self, league_id: int, season: int):
+    def get_teams(self, league_id: int, season: int):
         """Get all teams for a league and season"""
         endpoint = f"/v3/teams?league={league_id}&season={season}"
-        data = self.GET(endpoint)
+        data = self.__GET(endpoint)
         teams = []
         for team in data:
             teams.append(
@@ -109,10 +123,10 @@ class SoccerClient:
                     venue_name=team["venue"]["name"],
                 )
             )
-        self.logger.info(f"GET_teams returned {teams}")
+        self.logger.info(f"get_teams returned {teams}")
         return teams
 
-    def GET_fixtures(self, league_id: int, season: int):
+    def get_fixtures(self, league_id: int, season: int):
         """Get all fixtures for a league and season"""
         # Check for valid season
         if len(str(season)) != 4 or season < 2000 or season > datetime.now().year:
@@ -120,7 +134,7 @@ class SoccerClient:
             return
 
         endpoint = f"/v3/fixtures?league={league_id}&season={season}"
-        data = self.GET(endpoint)
+        data = self.__GET(endpoint)
         fixtures: list[Fixture] = [
             Fixture(
                 id=fixture["fixture"]["id"],
@@ -139,13 +153,12 @@ class SoccerClient:
         ]
 
         self.logger.info(
-            f"GET_fixtures returned {fixtures} for league {league_id}, season {season}"
+            f"get_fixtures returned {fixtures} for league {league_id}, season {season}"
         )
-        self.logger.info(f"GET_fixtures returned {len(fixtures)} fixtures")
+        self.logger.info(f"get_fixtures returned {len(fixtures)} fixtures")
 
         return fixtures
 
 
 if __name__ == "__main__":
     client = SoccerClient()
-    client.GET_fixtures(39, 2020)

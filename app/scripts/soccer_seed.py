@@ -1,5 +1,6 @@
 import os
 import sys
+import pandas as pd
 
 # Add parent directory to path for imports
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -10,14 +11,36 @@ from database import Database
 from clients import SoccerClient
 from config import setup_logger
 
-if __name__ == "main":
-    # Seed data into soccer databse
-    logger = setup_logger(__file__.__name__)
+COUNTRY_CODES = [
+    "US",
+    "AR",
+    "BR",
+    "NL",
+    "FR",
+    "PT",
+    "DE",
+    "IT",
+    "ES",
+    "GB",
+    "AT",
+]
 
-    # use client to get data
-    client = SoccerClient()
-    countries_data = client.GET_country()
+# initialize client and database
+client = SoccerClient()
+db = Database()
+db.connect()
 
-    # rework data
+# Countries
+# countries_columns = db.columns("countries")
+# countries = [pd.Series(client.get_country(code)) for code in COUNTRY_CODES]
+# countries_df = pd.DataFrame(countries, columns=countries_columns)
+# db.insert("countries", countries_df)
 
-    # add data to database
+# Leagues
+leagues_columns = db.columns("leagues")
+leagues = [pd.Series(client.get_league(code, 2)) for code in COUNTRY_CODES]
+leagues_df = pd.DataFrame(leagues, columns=leagues_columns)
+db.insert("leagues", leagues_df)
+
+# finally close database connection
+db.close()
