@@ -11,7 +11,7 @@ app_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(app_dir)
 
 from config import setup_logger
-from utils.db_types import *
+from lib.db_types import *
 
 load_dotenv()
 
