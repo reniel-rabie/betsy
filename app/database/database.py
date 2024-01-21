@@ -8,8 +8,10 @@ sys.path.append(app_dir)
 
 import psycopg2
 import pandas as pd
+import numpy as np
 from config import setup_logger
 from dotenv import load_dotenv
+from lib.db_types import *
 
 load_dotenv()
 
@@ -62,7 +64,7 @@ class Database:
             self.conn.commit()
         self.logger.info("Database initialized successfully")
 
-    def tabls(self):
+    def tables(self):
         """Get all table names"""
         self.cursor.execute(
             "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
@@ -81,43 +83,50 @@ class Database:
 
     def row_exists(self, table_name: str, row: pd.Series) -> bool:
         """Check if a row exists in a table"""
-        columns = list(row.index)
-        values = list(row.values)
-        clause = " AND ".join(
-            [f"{column} = '{value}'" for column, value in zip(columns, values)]
-        )
-        sql = f"SELECT * FROM {table_name} WHERE {clause}"
+        columns = self.columns(table_name)
+        columns_str = ", ".join(columns)
+        clause = " AND ".join([f"{k} = '{v}'" for k, v in row.items()])
+        sql = f"SELECT {columns_str} FROM {table_name} WHERE {clause}"
         self.cursor.execute(sql)
         return self.cursor.fetchone() is not None
 
-    def insert(self, table_name: str, dataframe: pd.DataFrame):
-        def format_values(row: pd.Series) -> tuple:
-            """Format values for SQL query"""
-            return tuple(row.values)
-
-        columns = list(dataframe.columns)
-        # insert each row of the dataframe into the table
-        for i, row in dataframe.iterrows():
-            # check if row already exists
-            if self.row_exists(table_name, row):
-                continue
-
-            values = format_values(row)
-            placeholders = ", ".join(["%s"] * len(columns))
-            columns_str = ", ".join(columns)
-            sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
-            self.cursor.execute(sql, values)
-
+    def insert_row(self, table_name: str, row: pd.Series):
+        """Insert a row into a table if it doesn't exist"""
+        if self.row_exists(table_name, row):
+            self.logger.info(f"Row already exists in {table_name}")
+            return
+        columns = self.columns(table_name)
+        columns_str = ", ".join(columns)
+        values = []
+        for item in row:
+            if isinstance(item, np.int64):
+                values.append(int(item))
+            elif isinstance(item, np.float64):
+                values.append(float(item))
+            else:
+                values.append(item)
+        values_str = ", ".join([f"'{v}'" for v in values])
+        sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({values_str})"
+        self.cursor.execute(sql)
         self.conn.commit()
-        self.logger.info(f"Inserted {len(dataframe)} rows into {table_name}")
+        self.logger.info(f"Inserted row into {table_name}")
 
-    def get(self, table_name: str, where: dict = None) -> pd.DataFrame:
+    def insert(self, table_name: str, dataframe: pd.DataFrame):
+        for index, row in dataframe.iterrows():
+            self.insert_row(table_name, row)
+
+    def get(
+        self, table_name: str, get_uuid: bool = False, where: dict = None
+    ) -> pd.DataFrame:
         """Get rows from a table"""
+        select = "*"
+        if get_uuid:
+            select = "uuid"
         if where is None:
-            sql = f"SELECT * FROM {table_name}"
+            sql = f"SELECT {select} FROM {table_name}"
         else:
             clause = " AND ".join([f"{k} = '{v}'" for k, v in where.items()])
-            sql = f"SELECT * FROM {table_name} WHERE {clause}"
+            sql = f"SELECT {select} FROM {table_name} WHERE {clause}"
 
         columns = self.columns(table_name, with_uuid=True)
         self.cursor.execute(sql)

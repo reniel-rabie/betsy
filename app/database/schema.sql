@@ -35,9 +35,17 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 --
 
 CREATE TYPE public.league_type AS ENUM (
-    'league',
-    'cup',
-    'super-cup'
+    'League',
+    'Cup',
+    'Super-cup',
+    'Play-off',
+    'Play-out',
+    'Friendly',
+    'Friendly International',
+    'Friendly National',
+    'Friendly Club',
+    'Friendly Youth',
+    'Major League Soccer'
 );
 
 
@@ -57,7 +65,7 @@ CREATE TYPE public.sport_type AS ENUM (
     'Hockey',
     'Volleyball',
     'Handball',
-    'Softball'
+    'Softball',
 );
 
 

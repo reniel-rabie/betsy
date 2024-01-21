@@ -12,6 +12,7 @@ sys.path.append(app_dir)
 
 from config import setup_logger
 from lib.db_types import *
+from database import Database
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ class SoccerClient:
             "X-RapidAPI-Host": self.base_url,
         }
         self.conn = http.client.HTTPSConnection(self.base_url)
+        self.db = Database()
         self.logger = setup_logger(self.__class__.__name__)
 
     def __GET(self, endpoint):
@@ -82,20 +84,27 @@ class SoccerClient:
 
     def get_league(self, country_code: str, amount: int = 1) -> list[League]:
         """Get all leagues"""
+        self.db.connect()
         endpoint = f"/v3/leagues?code={country_code}"
         response = self.__GET(endpoint)
         if amount > len(response):
             amount = len(response)
+
         leagues = [
             League(
-                id=league["league"]["id"],
+                id=int(league["league"]["id"]),
+                sport=SportType.SOCCER.value,
                 name=league["league"]["name"],
-                country_code=league["country"]["code"],
-                country_name=league["country"]["name"],
+                country_id=self.db.get(
+                    "countries", where={"code": league["country"]["code"]}
+                ).loc[0, "uuid"],
+                type=LeagueType(league["league"]["type"]).value,
             )
             for league in response[:amount]
         ]
-        self.logger.info(f"get_league returned {leagues}")
+        # self.logger.info(f"get_league returned {leagues}")
+        print("first league", leagues[0])
+        self.db.close()
         return leagues
 
     def get_seasons(self, league_id: int):

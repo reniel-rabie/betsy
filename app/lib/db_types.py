@@ -4,9 +4,9 @@ from datetime import datetime
 
 
 class SportType(Enum):
-    FOOTBALL = "football"
-    BASKETBALL = "basketball"
-    BASEBALL = "baseball"
+    SOCCER = "Soccer"
+    BASKETBALL = "Basketball"
+    BASEBALL = "Baseball"
 
 
 class LeagueType(Enum):
